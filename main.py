@@ -30,8 +30,8 @@ def get_image(path):
 
 def main():
     # settings
-    horizontal_cut = 7
-    vertical_cut = 2
+    horizontal_cut = 2
+    vertical_cut = 4
     path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/example_pic/3DZu1zP.jpg"
     print("path is %s" % path)
 
