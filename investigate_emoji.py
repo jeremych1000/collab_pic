@@ -1,5 +1,32 @@
 import os
+import csv
+import numpy as np
+import cv2
 
+import get_colour
+
+# get list of emoji files, make csv that details dominant colour of each emoji
 
 def get_list_emojis(folder_path):
-    os.listdir(folder_path)
+    list_full = [(folder_path + x) for x in os.listdir(folder_path)]
+    # print(list_full)
+    return list_full
+
+def get_emoji_colour(list_of_files, csv_path):
+    emoji_colour = []
+    
+    with open(csv_path, "w") as outfile:
+        for emoji in list_of_files:
+            img = cv2.imread(emoji)
+            (r, g, b) = get_colour.get_dominant_colour(img)
+            emoji_colour.append([emoji, (r,g,b)])
+            outfile.write("%s|%d|%d|%d\n" % (emoji, r, g, b))
+        outfile.close()
+    
+    print("Processed %d emojis and wrote to %s" % (len(list_of_files), csv_path))
+
+tmp_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128/"
+csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
+
+list_emoji = get_list_emojis(tmp_path)
+get_emoji_colour(list_emoji, csv_path)

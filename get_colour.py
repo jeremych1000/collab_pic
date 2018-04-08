@@ -29,7 +29,7 @@ def get_dominant_colour(img):
     peak_hex = [format(c, '02x') for c in peak_int]
     
     colour = ''.join(c for c in peak_hex)
-    print ('most frequent is %s (#%s)' % (peak_int, colour))
+    print ('Processed image, most frequent colour is %s (#%s)' % (peak_int, colour))
 
     # lets show the most frequent colour
     # blank = np.zeros((100,100,3), np.uint8)
@@ -40,5 +40,5 @@ def get_dominant_colour(img):
     # cv2.waitKey(0)
     # cv2.destroyAllWindows()
 
-    return peak_int
+    return (peak_int[0], peak_int[1], peak_int[2])
 

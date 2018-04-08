@@ -4,6 +4,7 @@
 # 1. get most prominent colour of an image, split into XxY blocks (width = width/X, height = height/Y)
 # 2. get most prominent colour of all emoji, put into array
 # 3. match (maybe exclude white?) emoji to block
+# 3.1 this may not work (maybe drawn emoji is detected as most dominant white), so second method is to force the matching using opencv magic
 # 4. render final image made out of emoji
 
 # my scripts
@@ -15,6 +16,7 @@ import render
 
 # other imports
 import cv2
+import csv
 
 
 def get_image(path):
@@ -51,6 +53,6 @@ def main():
         # get most dominant colour for each chunk of target image
         for i in range(vertical_cut):
             for j in range(horizontal_cut):
-                get_colour.get_dominant_colour(split_img[i][j])
+                (r, g, b) = get_colour.get_dominant_colour(split_img[i][j])
 
 main()
