@@ -7,6 +7,13 @@ import scipy.cluster
 import binascii
 
 
+def rgb2hex(r,g,b):
+    peak_int = [r, g, b]
+    peak_hex = [format(c, '02x') for c in peak_int]
+    colour = ''.join(c for c in peak_hex)
+    return colour
+
+
 def get_dominant_colour(img):
     # https://stackoverflow.com/questions/3241929/python-find-dominant-most-common-color-in-an-image
     NUM_CLUSTERS = 5
@@ -26,9 +33,7 @@ def get_dominant_colour(img):
 
     peak = codes[index_max]
     peak_int = [int(c) for c in peak]
-    peak_hex = [format(c, '02x') for c in peak_int]
-    
-    colour = ''.join(c for c in peak_hex)
+    colour = rgb2hex(peak_int[0], peak_int[1], peak_int[2])
     print ('Processed image, most frequent colour is %s (#%s)' % (peak_int, colour))
 
     # lets show the most frequent colour

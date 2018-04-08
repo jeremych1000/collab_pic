@@ -21,7 +21,7 @@ import csv
 
 def get_image(path):
     img = cv2.imread(path)
-    print(img.shape)
+    print("Image shape is ", img.shape)
     (rows, columns, channels) = img.shape
     properties = {
         "height": rows,
@@ -34,16 +34,27 @@ def main():
     # settings
     horizontal_cut = 2
     vertical_cut = 4
+    target_aspect_ratio = (16, 9)
 
     # picture paths
     target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/example_pic/3DZu1zP.jpg"
     emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128/"
+    emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
     print("pic path is %s" % target_pic_path)
     print("emoji path is %s" % emoji_folder_path)
 
     # first select target image and get properties
     img, properties = get_image(target_pic_path)
     
+    # find how many emojis there are
+    list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path)
+    num_emoji = len(list_emoji)
+    
+    proposed_w_cut = num_emoji * target_aspect_ratio[0] / (target_aspect_ratio[0]*target_aspect_ratio[1])
+    proposed_h_cut = num_emoji * target_aspect_ratio[1] / (target_aspect_ratio[0]*target_aspect_ratio[1])
+
+    print("Detected %d emojis in %s, propose wcut %f, hcut %f" % (num_emoji, emoji_folder_path, proposed_w_cut, proposed_h_cut))
+
     # split the target image into chunks
     split_img = investigate_image.split_image(img, properties, horizontal_cut, vertical_cut)
     
@@ -54,5 +65,11 @@ def main():
         for i in range(vertical_cut):
             for j in range(horizontal_cut):
                 (r, g, b) = get_colour.get_dominant_colour(split_img[i][j])
+
+
+    # process emojis
+    #nvestigate_emoji.get_emoji_colour(list_emoji, emoji_csv_path)
+    
+
 
 main()
