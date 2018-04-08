@@ -6,8 +6,6 @@ import scipy.misc
 import scipy.cluster
 import binascii
 
-path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/example_pic/3DZu1zP.jpg"
-print("path is %s" % path)
 
 def get_image(path):
     img = cv2.imread(path)
@@ -96,22 +94,4 @@ def get_dominant_colour(img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-
-
-
-def main():
-    horizontal_cut = 7
-    vertical_cut = 2
-
-    img, properties = get_image(path)
     
-    split_img = split_image(img, properties, horizontal_cut, vertical_cut)
-    
-    if split_img is None:
-        print("ERROR: no split image returned")
-    else:
-        for i in range(vertical_cut):
-            for j in range(horizontal_cut):
-                get_dominant_colour(split_img[i][j])
-
-main()
