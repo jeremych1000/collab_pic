@@ -19,8 +19,8 @@ def parse_csv(pic_csv, emoji_csv):
       
 
 def rgb2hsv(r,g,b):
-    h,s,v = colorsys.rgb_to_hsv(r, g, b)
-    return 360*h, s,v
+    h,s,v = colorsys.rgb_to_hsv(r/255, g/255, b/255)
+    return h, s,v
 
 
 def convert_list_to_hsv(pic_list, emoji_list):

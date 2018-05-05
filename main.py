@@ -30,7 +30,7 @@ def main():
 
     # picture paths
     print("### SETTING PATHS...")
-    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/example_pic/3DZu1zP.jpg"
+    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/beer.png"
     target_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/pic_colour.csv"
     emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/"
     emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
@@ -44,6 +44,7 @@ def main():
         img, properties = investigate_image.get_image(target_pic_path)
     except Exception as e:
         print(str(e))
+        assert False
 
     # find how many emojis there are
     list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path, subsample=subsample)
@@ -70,7 +71,7 @@ def main():
                 csvfile.write("r|g|b|start_x|end_x|start_y|end_y\n")
                 for i in range(proposed_h_cut):
                     for j in range(proposed_w_cut):
-                        curr = i*proposed_w_cut + j
+                        curr = i*proposed_w_cut + j + 1
                         print("\rOperating on sector {} of {} ({}%)...".format(curr, no_sectors, int(math.floor(100*curr/no_sectors))), end="")
                         operate_on = split_img[i][j]
                         (r, g, b) = get_colour.get_dominant_colour(operate_on.image)
