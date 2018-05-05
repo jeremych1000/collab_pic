@@ -72,7 +72,7 @@ def match(pic_sorted, emoji_sorted, randomize=False):
     for i in range(0, len(pic_sorted)):
         # play with these to filter out white, sometimes it's not exactly 255,255,255
         # maybe consider HSL? https://stackoverflow.com/questions/22588146/tracking-white-color-using-python-opencv
-        if pic_sorted[i].s <= 1 and pic_sorted[i].v == 100: 
+        if pic_sorted[i].s <= 1 and pic_sorted[i].v >= 99: 
             # if white then we somehow need to stop it replacing with emojis
             path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/white.jpg"
         else:

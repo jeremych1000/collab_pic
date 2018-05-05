@@ -26,12 +26,11 @@ def main():
     overwrite_pic = True # change to True every time after you change the image
     overwrite_emoji = True # change to True every time after you modify subsample, or emojis
     subsample = 2 # default 1, if subsample = 2, then the no. of emojis that will be used is 2**2, as it divides both width and height by subsample ratio
-    randomize = False # skip the colour matching
 
     # picture paths
     print("### SETTING PATHS...")
 
-    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/example_pic/google2.0.0.jpg" # target pic to replace with emojis
+    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/acc.png" # target pic to replace with emojis
     emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/" # where the emojis are located
 
     # temp files to be created
@@ -74,7 +73,7 @@ def main():
     else:
         # get most dominant colour for each chunk of target image
         if overwrite_pic:
-            print("### STARTING GET DOMINANT COLOUR FOR ORIGINAL IMAGE...")
+            print("### STARTING ANALYSIS OF ORIGINAL IMAGE...")
             with open(target_csv_path, 'w') as csvfile:
                 csvfile.write("r|g|b|start_x|end_x|start_y|end_y\n")
                 for i in range(proposed_h_cut):
@@ -103,19 +102,19 @@ def main():
     pic_hsv, emoji_hsv = match.convert_list_to_hsv(pic_list, emoji_list)
 
     # sort the picture csv and the emoji csv by their colour, represented by the hue
-    pic_sorted = sorted(pic_hsv, key=attrgetter('h'), reverse=True)
-    emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'), reverse=True)
+    pic_sorted = sorted(pic_hsv, key=attrgetter('h'), reverse=False)
+    emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'), reverse=False)
 
-    final = match.match(pic_sorted, emoji_sorted, randomize=randomize)
+    final = match.match(pic_sorted, emoji_sorted, randomize=False)
     final = sorted(final, key=attrgetter('start_y', 'start_x'))
 
     # use results of match to render
-    print("### STARTING RENDER...")
+    print("### STARTING FINAL RENDER...")
     rendered = render.generate_final_image(final, properties, target=final_cut_size)
     #cv2.imshow('final', rendered)
     #cv2.waitKey(0)
 
-    print("### SAVING RENDER...")
+    print("### SAVING FINAL RENDER...")
     cv2.imwrite(render_path, rendered)
     print("Image saved to {}".format(render_path))
 
