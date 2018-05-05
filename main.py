@@ -38,7 +38,7 @@ def main():
     # picture paths
     target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/hummingbirds+flower_final.jpg"
     target_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/pic_colour.csv"
-    emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128/"
+    emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/"
     emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
     print("pic path is %s" % target_pic_path)
     print("emoji path is %s" % emoji_folder_path)
@@ -65,6 +65,7 @@ def main():
     else:
         # get most dominant colour for each chunk of target image
         with open(target_csv_path, 'w') as csvfile:
+            csvfile.write("r|g|b|start_x|end_x|start_y|end_y\n")
             for i in range(proposed_h_cut):
                 for j in range(proposed_w_cut):
                     curr = i*proposed_w_cut + j
@@ -75,8 +76,12 @@ def main():
 
 
     # process emojis
-    #nvestigate_emoji.get_emoji_colour(list_emoji, emoji_csv_path)
+    investigate_emoji.get_emoji_colour(list_emoji, emoji_csv_path)
 
+    # match
+
+    
+    # use results of match to render
 
 
 main()

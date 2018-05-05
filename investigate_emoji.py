@@ -14,8 +14,11 @@ def get_list_emojis(folder_path):
 
 def get_emoji_colour(list_of_files, csv_path):
     emoji_colour = []
-    
+    print("Processing {} emojis...".format(len(list_of_files)))
+
     with open(csv_path, "w") as outfile:
+        outfile.write("path|r|g|b\n")
+
         for emoji in list_of_files:
             img = cv2.imread(emoji)
             (r, g, b) = get_colour.get_dominant_colour(img)
