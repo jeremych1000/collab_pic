@@ -1,10 +1,20 @@
 import numpy as np
+import math
+import cv2
+
+class Image_Extract:
+    def __init__(self, image, start_x, end_x, start_y, end_y):
+        self.image = image
+        self.start_x = start_x
+        self.end_x = end_x
+        self.start_y = start_y
+        self.end_y = end_y
 
 
 def split_image(img, properties, horizontal_cut, vertical_cut):
     # first define how big the split image should be
-    target_width = properties["width"] / horizontal_cut
-    target_height = properties["height"] / vertical_cut
+    target_width = int(math.floor(properties["width"] / horizontal_cut))
+    target_height = int(math.floor(properties["height"] / vertical_cut))
 
     if target_width % 1 != 0:
         print("Target width %f is not integer." % target_width)
@@ -33,7 +43,8 @@ def split_image(img, properties, horizontal_cut, vertical_cut):
                 print("Picture %d coordinates are %d %d %d %d" % (y*horizontal_cut+x, start_x, start_y, end_x, end_y))
 
                 extract = img[start_y:end_y, start_x:end_x]
-                split_image_row.append(extract)
+                extract_image = Image_Extract(extract, start_x, end_x, start_y, end_y)
+                split_image_row.append(extract_image)
                 #cv2.imshow("%d %d" % (y, x), extract)
                 #cv2.waitKey(0)
 

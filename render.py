@@ -1,4 +1,7 @@
 import cv2
+import random
+import investigate_emoji
+
 
 
 def greyscale_to_bw():
@@ -13,3 +16,12 @@ def greyscale_to_bw():
     cv2.imshow("bw_blur", im_bw_blur)
     cv2.imwrite("bw_blur.jpg", im_bw_blur)
 
+
+def shuffle_list(list):
+    a = list
+    random.shuffle(a)
+    return a
+
+emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128/"
+list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path)
+shuffled = shuffle_list(list_emoji)
