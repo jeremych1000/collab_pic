@@ -23,14 +23,14 @@ from operator import attrgetter
 
 def main():
     # settings
-    target_aspect_ratio = 16/9
-    overwrite_csv = True
-    overwrite_emoji = True
-    subsample = 2 # default None
+    # target_aspect_ratio = 16/9
+    overwrite_pic = False
+    overwrite_emoji = False
+    subsample = 2 # default 1, if subsample = 2, then the no. of emojis that will be used is 2**2, as it divides both width and height by subsample ratio
 
     # picture paths
     print("### SETTING PATHS...")
-    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/beer.png"
+    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/mydas.png"
     target_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/pic_colour.csv"
     emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/"
     emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
@@ -46,12 +46,14 @@ def main():
         print(str(e))
         assert False
 
+    aspect_ratio = properties["width"] / properties["height"]
+
     # find how many emojis there are
     list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path, subsample=subsample)
     num_emoji = len(list_emoji)
     
-    proposed_w_cut = int(math.floor(subsample * math.sqrt((num_emoji/subsample**2) / (1/target_aspect_ratio))))
-    proposed_h_cut = int(math.floor(subsample * math.sqrt((num_emoji/subsample**2) / (target_aspect_ratio))))
+    proposed_w_cut = int(math.floor(subsample * math.sqrt((num_emoji/subsample**2) / (1/aspect_ratio))))
+    proposed_h_cut = int(math.floor(subsample * math.sqrt((num_emoji/subsample**2) / (aspect_ratio))))
     no_sectors = proposed_w_cut * proposed_h_cut
 
     print("Detected %d emojis in %s." % (num_emoji, emoji_folder_path))
@@ -65,14 +67,14 @@ def main():
         print("ERROR: no split image returned")
     else:
         # get most dominant colour for each chunk of target image
-        if overwrite_csv:
+        if overwrite_pic:
             print("### STARTING GET DOMINANT COLOUR FOR ORIGINAL IMAGE...")
             with open(target_csv_path, 'w') as csvfile:
                 csvfile.write("r|g|b|start_x|end_x|start_y|end_y\n")
                 for i in range(proposed_h_cut):
                     for j in range(proposed_w_cut):
                         curr = i*proposed_w_cut + j + 1
-                        print("\rOperating on sector {} of {} ({}%)...".format(curr, no_sectors, int(math.floor(100*curr/no_sectors))), end="")
+                        print("\rOperating on sector {} of {} ({}%)...".format(curr, no_sectors, int(100*curr/no_sectors)), end="")
                         operate_on = split_img[i][j]
                         (r, g, b) = get_colour.get_dominant_colour(operate_on.image)
                         csvfile.write("%d|%d|%d|%d|%d|%d|%d\n" % (r, g, b, operate_on.start_x, operate_on.end_x, operate_on.start_y, operate_on.end_y))
@@ -94,10 +96,11 @@ def main():
 
     pic_hsv, emoji_hsv = match.convert_list_to_hsv(pic_list, emoji_list)
 
-    pic_sorted = sorted(pic_hsv, key=attrgetter('h'))
-    emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'))
+    # sort the picture csv and the emoji csv by their colour, represented by the hue
+    pic_sorted = sorted(pic_hsv, key=attrgetter('h'), reverse=True)
+    emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'), reverse=True)
 
-    final = match.match(pic_sorted, emoji_sorted)
+    final = match.match(pic_sorted, emoji_sorted, randomize=True)
 
     # use results of match to render
     print("### STARTING RENDER...")
@@ -105,7 +108,7 @@ def main():
     #cv2.imshow('final', rendered)
     #cv2.waitKey(0)
 
-    print("### SAVING...")
+    print("### SAVING RENDER...")
     cv2.imwrite(render_path, rendered)
     print("Image saved to {}".format(render_path))
 

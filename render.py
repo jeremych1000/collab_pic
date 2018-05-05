@@ -18,11 +18,6 @@ def greyscale_to_bw():
     cv2.imwrite("bw_blur.jpg", im_bw_blur)
 
 
-def shuffle_list(list):
-    a = list
-    random.shuffle(a)
-    return a
-
 def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     # https://stackoverflow.com/questions/44650888/resize-an-image-without-distortion-opencv
     # initialize the dimensions of the image to be resized and

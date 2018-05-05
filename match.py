@@ -1,15 +1,16 @@
 import csv
 import cv2
 import colorsys
+import random
 from operator import attrgetter
 from investigate_image import Image_Extract
 
 class HSV_object:
     def __init__(self, original, h, s, v):
         self.original = original
-        self.h = h
-        self.s = s
-        self.v = v
+        self.h = int(360*h)
+        self.s = int(100*s)
+        self.v = int(100*v)
 
 
 def parse_csv(pic_csv, emoji_csv):
@@ -23,47 +24,61 @@ def rgb2hsv(r,g,b):
     return h, s,v
 
 
+def shuffle_list(list):
+    a = list
+    random.shuffle(a)
+    return a
+
+
 def convert_list_to_hsv(pic_list, emoji_list):
     pic_hsv = []
     emoji_hsv = []
 
     for i in pic_list:
-        coordinates = {
+        metadata = {
             "start_x": i["start_x"],
             "end_x": i["end_x"],
             "start_y": i["start_y"],
             "end_y": i["end_y"]
         }
         r,g,b = int(i["r"]), int(i["g"]), int(i["b"])
-        hsv = rgb2hsv(r,g,b)
-        pic_hsv.append(HSV_object(coordinates, hsv[0], hsv[1], hsv[2]))
+        h, s, v = rgb2hsv(r,g,b)
+        pic_hsv.append(HSV_object(metadata, h, s, v))
 
     for j in emoji_list:
-        coordinates = {
+        metadata = {
             "path": j["path"]
         }
         r,g,b = int(j["r"]), int(j["g"]), int(j["b"])
-        hsv = rgb2hsv(r,g,b)
-        emoji_hsv.append(HSV_object(coordinates, hsv[0], hsv[1], hsv[2]))
+        h, s, v = rgb2hsv(r,g,b)
+        emoji_hsv.append(HSV_object(metadata, h, s, v))
 
     return pic_hsv, emoji_hsv
 
-def match(pic_sorted, emoji_sorted):
+def match(pic_sorted, emoji_sorted, randomize=False):
     final = []
+    len_pic = len(pic_sorted)
+    len_emoji = len(emoji_sorted)
+    if len_pic != len_emoji:
+        # need to truncate emoji list length
+        print("Truncating emoji list by {} to match length of picture list ({}).".format(len_emoji-len_pic, len_pic))
+        emoji_sorted = emoji_sorted[0:len(pic_sorted)]
 
-    # need to truncate emoji list length
-    emoji_sorted = emoji_sorted[0:len(pic_sorted)]
-    assert len(pic_sorted) == len(emoji_sorted), "Why are the two lists not the same length? {}, {}".format(len(pic_sorted), len(emoji_sorted))
+    if randomize:
+        emoji_sorted = shuffle_list(emoji_sorted)
 
+    count_not_white = 0
     for i in range(0, len(pic_sorted)):
-        if pic_sorted[i].h == 0:
+        if pic_sorted[i].h == 0 and pic_sorted[i].s == 0 and pic_sorted[i].v == 100:
             # if white then we somehow need to stop it replacing with emojis
             path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/white.jpg"
         else:
+            count_not_white += 1
             path = emoji_sorted[i].original["path"]
 
         a = Image_Extract(path, pic_sorted[i].original["start_x"], pic_sorted[i].original["end_x"], pic_sorted[i].original["start_y"], pic_sorted[i].original["end_y"])
         final.append(a)
     
+    print("Skipped matching of {} white sectors ({}%)".format(count_not_white, int(100*count_not_white/len_pic)))
     return final
 

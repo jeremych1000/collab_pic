@@ -30,7 +30,7 @@ def split_image(img, properties, horizontal_cut, vertical_cut):
     target_width = int(math.floor(properties["width"] / horizontal_cut))
     target_height = target_width #initially int(math.floor(properties["height"] / vertical_cut)), but emojis are square, so let's use the same!
 
-    print("Original W {} H {}, target W {} H {}".format(properties["width"], properties["height"], target_width, target_height))
+    print("Original W {} H {}, sector target W {} H {}".format(properties["width"], properties["height"], target_width, target_height))
     if target_width % 1 != 0:
         print("Target width %f is not integer." % target_width)
         return None

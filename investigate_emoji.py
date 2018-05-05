@@ -30,7 +30,7 @@ def get_emoji_colour(list_of_files, csv_path):
         outfile.write("path|r|g|b\n")
 
         for i in range(0, len(list_of_files)):
-            print("\rProcessing emoji {} out of {} ({}%)...".format(i+1, len(list_of_files), int(math.floor(100*i/len(list_of_files)))), end="")
+            print("\rProcessing emoji {} out of {} ({}%)...".format(i+1, len(list_of_files), int(100*i/len(list_of_files))), end="")
             img = cv2.imread(list_of_files[i])
             (r, g, b) = get_colour.get_dominant_colour(img)
             emoji_colour.append([list_of_files[i], (r,g,b)])
