@@ -24,8 +24,8 @@ def rgb2hsv(r,g,b):
     return h, s,v
 
 
-def shuffle_list(list):
-    a = list
+def shuffle_list(input):
+    a = input
     random.shuffle(a)
     return a
 
@@ -65,11 +65,14 @@ def match(pic_sorted, emoji_sorted, randomize=False):
         emoji_sorted = emoji_sorted[0:len(pic_sorted)]
 
     if randomize:
+        print("Randomising emoji list...")
         emoji_sorted = shuffle_list(emoji_sorted)
 
     count_not_white = 0
     for i in range(0, len(pic_sorted)):
-        if pic_sorted[i].h == 0 and pic_sorted[i].s == 0 and pic_sorted[i].v == 100:
+        # play with these to filter out white, sometimes it's not exactly 255,255,255
+        # maybe consider HSL? https://stackoverflow.com/questions/22588146/tracking-white-color-using-python-opencv
+        if pic_sorted[i].s <= 1 and pic_sorted[i].v == 100: 
             # if white then we somehow need to stop it replacing with emojis
             path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/white.jpg"
         else:

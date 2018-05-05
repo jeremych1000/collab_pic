@@ -20,17 +20,42 @@ def get_image(path):
     properties = {
         "height": rows,
         "width": columns,
-        "channels": channels
+        "channels": channels,
+        "aspect_ratio": calculate_aspect(columns, rows)
     }
     return img, properties
+
+def calculate_aspect(width: int, height: int) -> str:
+    # https://gist.github.com/Integralist/4ca9ff94ea82b0e407f540540f1d8c6c
+    temp = 0
+
+    def gcd(a, b):
+        """The GCD (greatest common divisor) is the highest number that evenly divides both width and height."""
+        return a if b == 0 else gcd(b, a % b)
+
+    if width == height:
+        return "1:1"
+
+    if width < height:
+        temp = width
+        width = height
+        height = temp
+
+    divisor = gcd(width, height)
+
+    x = int(width / divisor) if not temp else int(height / divisor)
+    y = int(height / divisor) if not temp else int(width / divisor)
+
+    return f"{x}:{y}"
 
 
 def split_image(img, properties, horizontal_cut, vertical_cut):
     # first define how big the split image should be
-    target_width = int(math.floor(properties["width"] / horizontal_cut))
+    target_width = int(math.floor(properties["width"] / horizontal_cut)) # floor instead of ceiling as we want to not go out of range
     target_height = target_width #initially int(math.floor(properties["height"] / vertical_cut)), but emojis are square, so let's use the same!
 
-    print("Original W {} H {}, sector target W {} H {}".format(properties["width"], properties["height"], target_width, target_height))
+    
+    print("Original W {} H {} (aspect ratio {}), sector target W {} H {}".format(properties["width"], properties["height"], properties["aspect_ratio"], target_width, target_height))
     if target_width % 1 != 0:
         print("Target width %f is not integer." % target_width)
         return None

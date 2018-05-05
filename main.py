@@ -18,23 +18,27 @@ import render
 import cv2
 import csv
 import math
-from operator import attrgetter
+from operator import attrgetter # used for sorting
 
 
 def main():
     # settings
-    # target_aspect_ratio = 16/9
-    overwrite_pic = False
-    overwrite_emoji = False
+    overwrite_pic = True # change to True every time after you change the image
+    overwrite_emoji = True # change to True every time after you modify subsample, or emojis
     subsample = 2 # default 1, if subsample = 2, then the no. of emojis that will be used is 2**2, as it divides both width and height by subsample ratio
+    randomize = False # skip the colour matching
 
     # picture paths
     print("### SETTING PATHS...")
-    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/mydas.png"
+
+    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/example_pic/google2.0.0.jpg" # target pic to replace with emojis
+    emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/" # where the emojis are located
+
+    # temp files to be created
     target_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/pic_colour.csv"
-    emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/"
     emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
-    render_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/render.png"
+    
+    render_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/render.png" # final image path
     print("pic path is %s" % target_pic_path)
     print("emoji path is %s" % emoji_folder_path)
     print("########################")
@@ -44,19 +48,21 @@ def main():
         img, properties = investigate_image.get_image(target_pic_path)
     except Exception as e:
         print(str(e))
-        assert False
+        assert False, "No image loaded."
 
     aspect_ratio = properties["width"] / properties["height"]
 
     # find how many emojis there are
+    print("### GETTING LIST OF EMOJIS...")
     list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path, subsample=subsample)
     num_emoji = len(list_emoji)
-    
+    print("Detected %d emojis in %s." % (num_emoji, emoji_folder_path))
+
+    print("### DETERMINING OPTIMAL SECTOR SIZES...")
     proposed_w_cut = int(math.floor(subsample * math.sqrt((num_emoji/subsample**2) / (1/aspect_ratio))))
     proposed_h_cut = int(math.floor(subsample * math.sqrt((num_emoji/subsample**2) / (aspect_ratio))))
     no_sectors = proposed_w_cut * proposed_h_cut
 
-    print("Detected %d emojis in %s." % (num_emoji, emoji_folder_path))
     print("Propose wcut %d, hcut %d. Will use %d emojis, %d unused of %d." % (proposed_w_cut, proposed_h_cut, no_sectors, num_emoji-no_sectors, num_emoji))
 
     # split the target image into chunks
@@ -74,7 +80,7 @@ def main():
                 for i in range(proposed_h_cut):
                     for j in range(proposed_w_cut):
                         curr = i*proposed_w_cut + j + 1
-                        print("\rOperating on sector {} of {} ({}%)...".format(curr, no_sectors, int(100*curr/no_sectors)), end="")
+                        print("\rProcessing sector {} of {} ({}%)...".format(curr, no_sectors, int(100*curr/no_sectors)), end="")
                         operate_on = split_img[i][j]
                         (r, g, b) = get_colour.get_dominant_colour(operate_on.image)
                         csvfile.write("%d|%d|%d|%d|%d|%d|%d\n" % (r, g, b, operate_on.start_x, operate_on.end_x, operate_on.start_y, operate_on.end_y))
@@ -100,7 +106,8 @@ def main():
     pic_sorted = sorted(pic_hsv, key=attrgetter('h'), reverse=True)
     emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'), reverse=True)
 
-    final = match.match(pic_sorted, emoji_sorted, randomize=True)
+    final = match.match(pic_sorted, emoji_sorted, randomize=randomize)
+    final = sorted(final, key=attrgetter('start_y', 'start_x'))
 
     # use results of match to render
     print("### STARTING RENDER...")
