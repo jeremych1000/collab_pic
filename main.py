@@ -18,33 +18,28 @@ import render
 import cv2
 import csv
 import math
+from operator import attrgetter
 
-
-def get_image(path):
-    img = cv2.imread(path)
-    print("Image shape is ", img.shape)
-    (rows, columns, channels) = img.shape
-    properties = {
-        "height": rows,
-        "width": columns,
-        "channels": channels
-    }
-    return img, properties
 
 def main():
     # settings
     target_aspect_ratio = 16/9
+    overwrite_csv = False
+    overwrite_emoji = False
 
     # picture paths
+    print("### SETTING PATHS...")
     target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/hummingbirds+flower_final.jpg"
     target_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/pic_colour.csv"
     emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/"
     emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
+    render_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/render.png"
     print("pic path is %s" % target_pic_path)
     print("emoji path is %s" % emoji_folder_path)
+    print("########################")
 
     # first select target image and get properties
-    img, properties = get_image(target_pic_path)
+    img, properties = investigate_image.get_image(target_pic_path)
     
     # find how many emojis there are
     list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path)
@@ -58,30 +53,55 @@ def main():
     print("Propose wcut %d, hcut %d. Will use %d emojis, %d unused." % (proposed_w_cut, proposed_h_cut, no_sectors, num_emoji-no_sectors))
 
     # split the target image into chunks
-    split_img = investigate_image.split_image(img, properties, proposed_w_cut, proposed_h_cut)
+    print("### STARTING SPLIT IMAGE...")
+    split_img, final_cut_size = investigate_image.split_image(img, properties, proposed_w_cut, proposed_h_cut)
     
     if split_img is None:
         print("ERROR: no split image returned")
     else:
         # get most dominant colour for each chunk of target image
-        with open(target_csv_path, 'w') as csvfile:
-            csvfile.write("r|g|b|start_x|end_x|start_y|end_y\n")
-            for i in range(proposed_h_cut):
-                for j in range(proposed_w_cut):
-                    curr = i*proposed_w_cut + j
-                    print("Operating on sector {} of {} ({}%)...".format(curr, no_sectors, int(math.floor(100*curr/no_sectors))))
-                    operate_on = split_img[i][j]
-                    (r, g, b) = get_colour.get_dominant_colour(operate_on.image)
-                    csvfile.write("%d|%d|%d|%d|%d|%d|%d\n" % (r, g, b, operate_on.start_x, operate_on.end_x, operate_on.start_y, operate_on.end_y))
+        if overwrite_csv:
+            print("### STARTING GET DOMINANT COLOUR FOR ORIGINAL IMAGE...")
+            with open(target_csv_path, 'w') as csvfile:
+                csvfile.write("r|g|b|start_x|end_x|start_y|end_y\n")
+                for i in range(proposed_h_cut):
+                    for j in range(proposed_w_cut):
+                        curr = i*proposed_w_cut + j
+                        print("Operating on sector {} of {} ({}%)...".format(curr, no_sectors, int(math.floor(100*curr/no_sectors))))
+                        operate_on = split_img[i][j]
+                        (r, g, b) = get_colour.get_dominant_colour(operate_on.image)
+                        csvfile.write("%d|%d|%d|%d|%d|%d|%d\n" % (r, g, b, operate_on.start_x, operate_on.end_x, operate_on.start_y, operate_on.end_y))
 
 
     # process emojis
-    investigate_emoji.get_emoji_colour(list_emoji, emoji_csv_path)
+    if overwrite_emoji:
+        print("### STARTING PROCESS EMOJI...")
+        investigate_emoji.get_emoji_colour(list_emoji, emoji_csv_path)
 
     # match
+    print("### STARTING MATCH...")
+    with open(target_csv_path) as pic_csv, open(emoji_csv_path) as emoji_csv:
+        pic_list, emoji_list = match.parse_csv(pic_csv, emoji_csv)
+        pic_csv.close()
+        emoji_csv.close()
 
-    
+    pic_hsv, emoji_hsv = match.convert_list_to_hsv(pic_list, emoji_list)
+
+    pic_sorted = sorted(pic_hsv, key=attrgetter('h'))
+    emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'))
+
+    final = match.match(pic_sorted, emoji_sorted)
+
     # use results of match to render
+    print("### STARTING RENDER...")
+    rendered = render.generate_final_image(final, properties, target=final_cut_size)
+    #cv2.imshow('final', rendered)
+    #cv2.waitKey(0)
 
+    print("### SAVING...")
+    cv2.imwrite(render_path, rendered)
+    print("Image saved to {}".format(render_path))
+
+    print("### COMPLETE")
 
 main()

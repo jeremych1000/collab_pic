@@ -2,7 +2,7 @@ import csv
 import cv2
 import colorsys
 from operator import attrgetter
-
+from investigate_image import Image_Extract
 
 class HSV_object:
     def __init__(self, original, h, s, v):
@@ -47,22 +47,22 @@ def convert_list_to_hsv(pic_list, emoji_list):
 
     return pic_hsv, emoji_hsv
 
+def match(pic_sorted, emoji_sorted):
+    final = []
 
-target_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/pic_colour.csv"
-emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
-with open(target_csv_path) as pic_csv, open(emoji_csv_path) as emoji_csv:
-    pic_list, emoji_list = parse_csv(pic_csv, emoji_csv)
-    pic_csv.close()
-    emoji_csv.close()
+    # need to truncate emoji list length
+    emoji_sorted = emoji_sorted[0:len(pic_sorted)]
+    assert len(pic_sorted) == len(emoji_sorted), "Why are the two lists not the same length? {}, {}".format(len(pic_sorted), len(emoji_sorted))
 
-pic_hsv, emoji_hsv = convert_list_to_hsv(pic_list, emoji_list)
-print(pic_hsv[0].original)
-print(emoji_hsv[0].original)
+    for i in range(0, len(pic_sorted)):
+        if pic_sorted[i].h == 0:
+            # if white then we somehow need to stop it replacing with emojis
+            path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/white.jpg"
+        else:
+            path = emoji_sorted[i].original["path"]
 
-pic_sorted = sorted(pic_hsv, key=attrgetter('h'))
-emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'))
+        a = Image_Extract(path, pic_sorted[i].original["start_x"], pic_sorted[i].original["end_x"], pic_sorted[i].original["start_y"], pic_sorted[i].original["end_y"])
+        final.append(a)
+    
+    return final
 
-for i in range(0, 10):
-    print(pic_hsv[i].h)
-    print(emoji_hsv[i].h)
-    print('\n')

@@ -112,3 +112,5 @@ venv.bak/
 tmp/*
 m_pic/*
 *.csv
+render.png
+render.jpg
