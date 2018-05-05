@@ -18,7 +18,7 @@ def remove_transparency(im, bg_colour=(255, 255, 255)):
     else:
         return im
 
-dir  = "C:\\Users\\Jeremy\\Documents\\GitHub\\collab_pic\\emoji_128_non_transparent"
+dir  = "C:\\Users\\Jeremy\\Documents\\GitHub\\collab_pic\\m_pic"
 for root, subfolders, files in os.walk(dir):
     for file in files:
         try:

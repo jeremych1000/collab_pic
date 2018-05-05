@@ -11,7 +11,10 @@ class Image_Extract:
         self.end_y = int(end_y)
 
 def get_image(path):
-    img = cv2.imread(path)
+    try:
+        img = cv2.imread(path)
+    except Exception as e:
+        print(str(e))
     #print("Image shape is ", img.shape)
     (rows, columns, channels) = img.shape
     properties = {
