@@ -55,7 +55,7 @@ def convert_list_to_hsv(pic_list, emoji_list):
 
     return pic_hsv, emoji_hsv
 
-def match(pic_sorted, emoji_sorted, randomize=False):
+def match(pic_sorted, emoji_sorted, base_repo_path, randomize=False):
     final = []
     len_pic = len(pic_sorted)
     len_emoji = len(emoji_sorted)
@@ -74,7 +74,7 @@ def match(pic_sorted, emoji_sorted, randomize=False):
         # maybe consider HSL? https://stackoverflow.com/questions/22588146/tracking-white-color-using-python-opencv
         if pic_sorted[i].s <= 1 and pic_sorted[i].v >= 99: 
             # if white then we somehow need to stop it replacing with emojis
-            path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/white.jpg"
+            path = base_repo_path + "/white.jpg"
         else:
             count_not_white += 1
             path = emoji_sorted[i].original["path"]

@@ -14,8 +14,9 @@ def get_image(path):
     try:
         img = cv2.imread(path)
     except Exception as e:
-        print(str(e))
-    #print("Image shape is ", img.shape)
+        print("EXCEPTION: " + str(e))
+        raise
+    #print("Image successfully read - {} {}.".format(img.size, img.dtype))
     (rows, columns, channels) = img.shape
     properties = {
         "height": rows,
@@ -46,7 +47,7 @@ def calculate_aspect(width: int, height: int) -> str:
     x = int(width / divisor) if not temp else int(height / divisor)
     y = int(height / divisor) if not temp else int(width / divisor)
 
-    return f"{x}:{y}"
+    return "{}:{}".format(x,y)
 
 
 def split_image(img, properties, horizontal_cut, vertical_cut):

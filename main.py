@@ -15,29 +15,37 @@ import match
 import render
 
 # other imports
+import os
 import cv2
 import csv
 import math
+import errno
 from operator import attrgetter # used for sorting
 
 
 def main():
     # settings
-    overwrite_pic = True # change to True every time after you change the image
-    overwrite_emoji = True # change to True every time after you modify subsample, or emojis
-    subsample = 2 # default 1, if subsample = 2, then the no. of emojis that will be used is 2**2, as it divides both width and height by subsample ratio
+    overwrite_pic = False # change to True every time after you change the image
+    overwrite_emoji = False # change to True every time after you modify subsample, or emojis
+    subsample = 2# default 1, if subsample = 2, then the no. of emojis that will be used is 2**2, as it divides both width and height by subsample ratio
 
     # picture paths
     print("### SETTING PATHS...")
+    base_repo_path = os.path.dirname(os.path.realpath(__file__))
 
-    target_pic_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/m_pic/acc.png" # target pic to replace with emojis
-    emoji_folder_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/emoji_128_non_transparent/" # where the emojis are located
+    target_pic_path = base_repo_path + "/example_pic/google2.0.0.jpg" # target pic to replace with emojis
+    emoji_folder_path = base_repo_path + "/emoji_128_non_transparent/" # where the emojis are located
 
     # temp files to be created
-    target_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/pic_colour.csv"
-    emoji_csv_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/tmp/emoji_colour.csv"
+    target_csv_path = base_repo_path + "/tmp/pic_colour.csv"
+    emoji_csv_path = base_repo_path + "/tmp/emoji_colour.csv"
+    try:
+        os.makedirs(base_repo_path + "/tmp/")
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise
     
-    render_path = "C:/Users/Jeremy/Documents/GitHub/collab_pic/render.png" # final image path
+    render_path = base_repo_path + "/render.png" # final image path
     print("pic path is %s" % target_pic_path)
     print("emoji path is %s" % emoji_folder_path)
     print("########################")
@@ -53,8 +61,8 @@ def main():
 
     # find how many emojis there are
     print("### GETTING LIST OF EMOJIS...")
-    list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path, subsample=subsample)
-    num_emoji = len(list_emoji)
+    list_emoji = investigate_emoji.get_list_emojis(emoji_folder_path)
+    num_emoji = len(list_emoji)*(subsample**2)
     print("Detected %d emojis in %s." % (num_emoji, emoji_folder_path))
 
     print("### DETERMINING OPTIMAL SECTOR SIZES...")
@@ -90,7 +98,7 @@ def main():
     # process emojis
     if overwrite_emoji:
         print("### STARTING PROCESS EMOJI...")
-        investigate_emoji.get_emoji_colour(list_emoji, emoji_csv_path)
+        investigate_emoji.get_emoji_colour(list_emoji, emoji_csv_path, subsample=subsample)
 
     # match
     print("### STARTING MATCH...")
@@ -105,16 +113,17 @@ def main():
     pic_sorted = sorted(pic_hsv, key=attrgetter('h'), reverse=False)
     emoji_sorted = sorted(emoji_hsv, key=attrgetter('h'), reverse=False)
 
-    final = match.match(pic_sorted, emoji_sorted, randomize=False)
+    final = match.match(pic_sorted, emoji_sorted, randomize=False, base_repo_path=base_repo_path)
     final = sorted(final, key=attrgetter('start_y', 'start_x'))
 
     # use results of match to render
     print("### STARTING FINAL RENDER...")
+    print("Final length {}, final cut size {}".format(len(final), final_cut_size))
     rendered = render.generate_final_image(final, properties, target=final_cut_size)
     #cv2.imshow('final', rendered)
     #cv2.waitKey(0)
 
-    print("### SAVING FINAL RENDER...")
+    print("### SAVING FINAL RENDER TO DISK...")
     cv2.imwrite(render_path, rendered)
     print("Image saved to {}".format(render_path))
 

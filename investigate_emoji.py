@@ -8,21 +8,12 @@ import get_colour
 
 # get list of emoji files, make csv that details dominant colour of each emoji
 
-def get_list_emojis(folder_path, subsample=None):
+def get_list_emojis(folder_path):
     list_full = [(folder_path + x) for x in os.listdir(folder_path)]
 
-    if subsample != 1:
-        long_list = []
-        num_times_to_copy_list = subsample ** 2
-        for i in range(0, num_times_to_copy_list):
-            for j in list_full:
-                long_list.append(j)
-    else:
-        long_list = list_full
-    # print(list_full)
-    return long_list
+    return list_full
 
-def get_emoji_colour(list_of_files, csv_path):
+def get_emoji_colour(list_of_files, csv_path, subsample=1):
     emoji_colour = []
     print("Processing {} emojis...".format(len(list_of_files)))
 
@@ -34,7 +25,9 @@ def get_emoji_colour(list_of_files, csv_path):
             img = cv2.imread(list_of_files[i])
             (r, g, b) = get_colour.get_dominant_colour(img)
             emoji_colour.append([list_of_files[i], (r,g,b)])
-            outfile.write("%s|%d|%d|%d\n" % (list_of_files[i], r, g, b))
+            for s in range(0, subsample**2):
+                outfile.write("%s|%d|%d|%d\n" % (list_of_files[i], r, g, b))
+
         print("\n")
         outfile.close()
     

@@ -50,10 +50,11 @@ def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
     # return the resized image
     return resized
 
-def generate_final_image(final, properties, target=None):
+def generate_final_image(final, properties, target=None, subsample=1):
     new = np.zeros((properties["height"], properties["width"] ,3), np.uint8)
     
     for i in range(0, len(final)):
+        print("\rRendering image sector {} out of {} ({}%)...".format(i+1, len(final), int(100*i/len(final))), end="")
         curr_emoji, curr_properties = get_image(final[i].image)
         #print(curr_emoji_path)
         #curr_emoji = cv2.imread(curr_emoji_path)

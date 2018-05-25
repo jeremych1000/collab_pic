@@ -7,6 +7,9 @@ Wallpapers found on Google.
 - Python 3
 - OpenCV
 
+`sudo apt-get install -y libsm6 libxext6`
+`pip3 install opencv-contrib-python scipy`
+
 ## To run
 - `git clone https://github.com/jeremych1000/collab_pic.git`
 - Modify paths in `main.py`, some example emojis and images are given in the root folder
