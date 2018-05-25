@@ -7,7 +7,10 @@ Wallpapers found on Google.
 - Python 3
 - OpenCV
 
+For example, on WSL (Ubuntu 16)...
+
 `sudo apt-get install -y libsm6 libxext6`
+
 `pip3 install opencv-contrib-python scipy`
 
 ## To run
