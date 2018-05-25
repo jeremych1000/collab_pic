@@ -102,10 +102,14 @@ def main():
 
     # match
     print("### STARTING MATCH...")
-    with open(target_csv_path) as pic_csv, open(emoji_csv_path) as emoji_csv:
-        pic_list, emoji_list = match.parse_csv(pic_csv, emoji_csv)
-        pic_csv.close()
-        emoji_csv.close()
+    try:
+        with open(target_csv_path) as pic_csv, open(emoji_csv_path) as emoji_csv:
+            pic_list, emoji_list = match.parse_csv(pic_csv, emoji_csv)
+            pic_csv.close()
+            emoji_csv.close()
+    except FileNotFoundError:
+        print("ERROR: Please switch overwrite_* variables to True to generate the csv's.")
+        raise
 
     pic_hsv, emoji_hsv = match.convert_list_to_hsv(pic_list, emoji_list)
 
